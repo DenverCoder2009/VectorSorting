@@ -43,7 +43,7 @@ struct Bid {
  */
 void displayBid(Bid bid) {
     cout << bid.bidId << ": " << bid.title << " | " << bid.amount << " | "
-            << bid.fund << endl;
+        << bid.fund << endl;
     return;
 }
 
@@ -105,7 +105,8 @@ vector<Bid> loadBids(string csvPath) {
             // push this bid to the end
             bids.push_back(bid);
         }
-    } catch (csv::Error &e) {
+    }
+    catch (csv::Error& e) {
         std::cerr << e.what() << std::endl;
     }
     return bids;
@@ -124,19 +125,54 @@ int partition(vector<Bid>& bids, int begin, int end) {
     //set low and high equal to begin and end
 
     // pick the middle element as pivot point
-    
+
     // while not done 
 
         // keep incrementing low index while bids[low] < bids[pivot]
-       
+
         // keep decrementing high index while bids[pivot] < bids[high]
 
         /* If there are zero or one elements remaining,
             all bids are partitioned. Return high */
-       // else swap the low and high bids (built in vector method)
-            // move low and high closer ++low, --high
-    //return high;
-    return 0;
+            // else swap the low and high bids (built in vector method)
+                 // move low and high closer ++low, --high
+         //return high;
+    int midpoint = begin + (end - begin) / 2;
+    Bid pivot = bids.at(midpoint);
+
+    bool done = false;
+    while (!done) {
+        // Increment lowIndex while numbers[lowIndex] < pivot
+        while (bids.at(begin).title.compare(pivot.title) < 0) {
+            begin += 1;
+        }
+
+        // Decrement highIndex while pivot < numbers[highIndex]
+        while (pivot.title.compare(bids.at(end).title) < 0) {
+            end -= 1;
+        }
+        /*  while (bids.at(begin).title.compare(pivot.title) > 0) {
+            end -= 1;
+          }*/
+
+          // If zero or one elements remain, then all numbers are 
+          // partitioned. Return highIndex.
+        if (begin >= end) {
+            done = true;
+        }
+        else {
+            // Swap numbers[lowIndex] and numbers[highIndex]
+            Bid temp = bids.at(begin);
+            bids.at(begin) = bids.at(end);
+            bids.at(end) = temp;
+
+            // Update lowIndex and highIndex
+            begin += 1;
+            end -= 1;
+        }
+    }
+
+    return end;
 }
 
 /**
@@ -149,18 +185,32 @@ int partition(vector<Bid>& bids, int begin, int end) {
  * @param end the ending index to sort on
  */
 void quickSort(vector<Bid>& bids, int begin, int end) {
+    int lowEndBegin = 0;
+    if (begin >= end) {
+        return;
+    }
+
+    // Partition the data within the array. Value lowEndIndex 
+    // returned from partitioning is the index of the low 
+    // partition's last element.
+    lowEndBegin = partition(bids, begin, end);
+
+    // Recursively sort low partition (lowIndex to lowEndIndex) 
+    // and high partition (lowEndIndex + 1 to highIndex)
+    quickSort(bids, begin, lowEndBegin);
+    quickSort(bids, lowEndBegin + 1, end);
     //set mid equal to 0
 
     /* Base case: If there are 1 or zero bids to sort,
      partition is already sorted otherwise if begin is greater
      than or equal to end then return*/
 
-    /* Partition bids into low and high such that
-     midpoint is location of last element in low */
-     
-    // recursively sort low partition (begin to mid)
+     /* Partition bids into low and high such that
+      midpoint is location of last element in low */
 
-    // recursively sort high partition (mid+1 to end)
+      // recursively sort low partition (begin to mid)
+
+      // recursively sort high partition (mid+1 to end)
 
 }
 
@@ -175,6 +225,32 @@ void quickSort(vector<Bid>& bids, int begin, int end) {
  *            instance to be sorted
  */
 void selectionSort(vector<Bid>& bids) {
+    unsigned i = 0;
+    unsigned j = 0;
+    int indexSmallest = 0;
+    size_t bidSize = bids.size();
+    Bid temp = bids.at(0);  // Temporary variable for swap
+
+    for (i = 0; i < bidSize - 1; ++i) {
+
+        // Find index of smallest remaining element
+        indexSmallest = i;
+        for (j = i + 1; j < bidSize; ++j) {
+
+            if (bids.at(j).title.compare(bids.at(indexSmallest).title) < 0) {
+                indexSmallest = j;
+            }
+        }
+
+        if (indexSmallest != i)
+        {
+
+            // Swap numbers[i] and numbers[indexSmallest]
+            temp = bids.at(i);
+            bids.at(i) = bids.at(indexSmallest);
+            bids.at(indexSmallest) = temp;
+        }
+    }
     //define min as int (index of the current minimum bid)
 
     // check size of bids vector
@@ -215,7 +291,7 @@ int main(int argc, char* argv[]) {
         csvPath = argv[1];
         break;
     default:
-        csvPath = "eBid_Monthly_Sales_Dec_2016.csv";
+        csvPath = "eBid_Monthly_Sales.csv";
     }
 
     // Define a vector to hold all the bids
@@ -262,9 +338,26 @@ int main(int argc, char* argv[]) {
 
             break;
 
-        // FIXME (1b): Invoke the selection sort and report timing results
+        case 3:
+            ticks = clock();
+            selectionSort(bids);
+            ticks = clock() - ticks; // current clock ticks minus starting clock ticks
+            cout << bids.size() << " bids sorted" << endl;
+            cout << "time: " << ticks << " clock ticks" << endl;
+            cout << "time: " << ticks * 1.0 / CLOCKS_PER_SEC << " seconds" << endl;
 
-        // FIXME (2b): Invoke the quick sort and report timing results
+            break;
+
+        case 4:
+            ticks = clock();
+            quickSort(bids, 0, bids.size() - 1);
+            ticks = clock() - ticks; // current clock ticks minus starting clock ticks
+            cout << bids.size() << " bids sorted" << endl;
+            cout << "time: " << ticks << " clock ticks" << endl;
+            cout << "time: " << ticks * 1.0 / CLOCKS_PER_SEC << " seconds" << endl;
+            // FIXME (1b): Invoke the selection sort and report timing results
+
+            // FIXME (2b): Invoke the quick sort and report timing results
 
         }
     }
