@@ -44,7 +44,7 @@ struct Bid {
 void displayBid(Bid bid) {
     cout << bid.bidId << ": " << bid.title << " | " << bid.amount << " | "
             << bid.fund << endl;
-    return;
+    return;faaaaack you
 }
 
 /**
